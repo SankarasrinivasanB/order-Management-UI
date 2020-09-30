@@ -6,8 +6,8 @@ spec:
   strategy:
     jenkinsPipelineStrategy:
       jenkinsfile: |-
-        def templatePath = 'https://raw.githubusercontent.com/sibykarthikeyan/order-Management-UI/master/angular-template.yml'
-        def templateName = 'angular-9-example'
+        def templatePath = 'https://raw.githubusercontent.com/SankarasrinivasanB/order-Management-UI/master/angular-template.yml'
+        def templateName = 'angular-web-app'
         pipeline {
             agent {
               node {
@@ -44,26 +44,12 @@ spec:
                         } 
                     } 
                 } 
-                stage('create') {
-                    steps {
-                        script {
-                            openshift.withCluster() {
-                                openshift.withProject() {
-                                    openshift.newApp(templatePath)
-                                }
-                            }
-                        } 
-                    } 
-                } 
                 stage('build') {
                     steps {
                         script {
                             openshift.withCluster() {
                                 openshift.withProject() {
-                                    def builds = openshift.selector("bc", templateName).related('builds')
-                                    builds.untilEach(1) {
-                                        return (it.object().status.phase == "Complete")
-                                    }
+                                    def builds = openshift.selector("bc", templateName).related('builds')                                    
                                 }
                             }
                         } 
@@ -75,9 +61,6 @@ spec:
                             openshift.withCluster() {
                                 openshift.withProject() {
                                     def rm = openshift.selector("dc", templateName).rollout()
-                                    openshift.selector("dc", templateName).related('pods').untilEach(1) {
-                                        return (it.object().status.phase == "Running")
-                                    }
                                 }
                             }
                         } 
